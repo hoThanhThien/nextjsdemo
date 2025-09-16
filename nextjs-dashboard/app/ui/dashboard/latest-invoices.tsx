@@ -1,7 +1,8 @@
 import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import Image from 'next/image';
-import { lusitana } from '@/app/ui/fonts';
+// simple local fallback for the lusitana font utilities used only for className
+const lusitana = { className: 'font-lusitana' };
 import { LatestInvoice } from '@/app/lib/definitions';
 export default async function LatestInvoices({
   latestInvoices,
