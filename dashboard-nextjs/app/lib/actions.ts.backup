@@ -3,12 +3,11 @@
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-// import postgres from 'postgres'; // Commented out for mock version
+import postgres from 'postgres';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 
-// Mock database connection - commented out for deployment
-// const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
+const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 const FormSchema = z.object({
   id: z.string(),
@@ -52,24 +51,21 @@ export async function createInvoice(prevState: State, formData: FormData) {
     };
   }
  
-  // Prepare data for insertion (mock)
+  // Prepare data for insertion into the database
   const { customerId, amount, status } = validatedFields.data;
   const amountInCents = amount * 100;
   const date = new Date().toISOString().split('T')[0];
  
-  // Mock database insert - simulate successful creation
+  // Insert data into the database
   try {
-    console.log('Mock: Creating invoice', { customerId, amountInCents, status, date });
-    // Simulate processing delay
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    // In a real app, this would insert into database:
-    // await sql`INSERT INTO invoices (customer_id, amount, status, date) VALUES (${customerId}, ${amountInCents}, ${status}, ${date})`;
-    
-    console.log('Mock: Invoice created successfully');
+    await sql`
+      INSERT INTO invoices (customer_id, amount, status, date)
+      VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
+    `;
   } catch (error) {
+    // If a database error occurs, return a more specific error.
     return {
-      message: 'Mock Error: Failed to Create Invoice.',
+      message: 'Database Error: Failed to Create Invoice.',
     };
   }
  
@@ -100,16 +96,13 @@ export async function updateInvoice(
   const amountInCents = amount * 100;
  
   try {
-    console.log('Mock: Updating invoice', { id, customerId, amountInCents, status });
-    // Simulate processing delay
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    // In a real app, this would update the database:
-    // await sql`UPDATE invoices SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status} WHERE id = ${id}`;
-    
-    console.log('Mock: Invoice updated successfully');
+    await sql`
+      UPDATE invoices
+      SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
+      WHERE id = ${id}
+    `;
   } catch (error) {
-    return { message: 'Mock Error: Failed to Update Invoice.' };
+    return { message: 'Database Error: Failed to Update Invoice.' };
   }
  
   revalidatePath('/dashboard/invoices');
@@ -117,19 +110,9 @@ export async function updateInvoice(
 }
 
 export async function deleteInvoice(id: string) {
-  try {
-    console.log('Mock: Deleting invoice', { id });
-    // Simulate processing delay
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    // In a real app, this would delete from database:
-    // await sql`DELETE FROM invoices WHERE id = ${id}`;
-    
-    console.log('Mock: Invoice deleted successfully');
+    throw new Error('Failed to Delete Invoice');
+    await sql`DELETE FROM invoices WHERE id = ${id}`;
     revalidatePath('/dashboard/invoices');
-  } catch (error) {
-    throw new Error('Mock Error: Failed to Delete Invoice');
-  }
 }
 
 export async function authenticate(
