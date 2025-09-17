@@ -4,26 +4,16 @@ import { authConfig } from './auth.config';
 import { z } from 'zod';
 import type { User } from '@/app/lib/definitions';
 import bcrypt from 'bcrypt';
-
-// Mock user for development
-const mockUser: User = {
-  id: '410544b2-4001-4271-9855-fec4b6a6442a',
-  name: 'User',
-  email: 'user@nextmail.com',
-  password: '$2b$10$K8QVw8.eLvOI20H/nxyq.OdAthHXiP2Du9SWelzSBBMdJpC3QvSqG', // bcrypt hash of '123456'
-};
+import postgres from 'postgres';
+ 
+const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
  
 async function getUser(email: string): Promise<User | undefined> {
   try {
-    console.log('Mock: Fetching user for email:', email);
-    
-    // Mock implementation: return mock user if email matches
-    if (email === mockUser.email) {
-      return mockUser;
-    }
-    return undefined;
+    const user = await sql<User[]>`SELECT * FROM users WHERE email=${email}`;
+    return user[0];
   } catch (error) {
-    console.error('Mock: Failed to fetch user:', error);
+    console.error('Failed to fetch user:', error);
     throw new Error('Failed to fetch user.');
   }
 }
