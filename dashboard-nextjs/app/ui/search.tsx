@@ -9,6 +9,7 @@ export default function Search({ placeholder }: { placeholder: string }) {
   const pathname = usePathname();
   const { replace } = useRouter();
 
+  // Move hook to top level of component
   const handleSearch = useDebouncedCallback((term: string) => {
     console.log(`Searching... ${term}`);
 
