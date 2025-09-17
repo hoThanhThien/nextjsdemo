@@ -6,7 +6,7 @@ export const authConfig = {
   },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
-      // Temporarily bypass authentication for development
+      // Bypass authentication - allow direct access to dashboard
       return true;
       
       // Original authentication logic (commented out)
